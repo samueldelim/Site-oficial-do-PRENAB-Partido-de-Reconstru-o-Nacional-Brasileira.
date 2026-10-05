@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /busca.html
+
+Sitemap: https://samueldelim.github.io/Site-oficial-do-PRENAB-Partido-de-Reconstru-o-Nacional-Brasileira./sitemap.xml
