@@ -283,8 +283,27 @@ window.addEventListener('unhandledrejection',e=>{
           if(!confirm(pergunta))return;
           b.disabled=true;b.textContent=sincronizar?'Sincronizando…':'Aprovando…';
           const r=await sb.rpc('aprovar_inscricao',{p_inscricao_id:String(d.ai)});
-          if(r.error){b.disabled=false;b.textContent=sincronizar?'Sincronizar militante':'Aprovar membro';b.title=r.error.message;alert('Não foi possível '+(sincronizar?'sincronizar':'aprovar')+': '+r.error.message);return}
-          alert(sincronizar?'✅ Aprovação sincronizada. A conta agora é Militante.':'✅ Membro aprovado. A conta agora é Militante.');
+          if(r.error){
+            b.disabled=false;
+            b.textContent=sincronizar?'Sincronizar militante':'Aprovar membro';
+            b.title=r.error.message;
+            alert('Não foi possível '+(sincronizar?'sincronizar':'aprovar')+': '+r.error.message);
+            return;
+          }
+          const resultado=r.data||{};
+          if(resultado.aguardando_conta){
+            alert(
+              sincronizar
+                ? '⚠️ Ainda não existe uma conta para este e-mail. A aprovação permanece registrada; quando a pessoa criar a conta com esse mesmo e-mail, ela poderá ser sincronizada.'
+                : '✅ Inscrição aprovada. A pessoa ainda não possui uma conta no site. Quando criar a conta com este mesmo e-mail, o sistema poderá vinculá-la como Militante.'
+            );
+          }else{
+            alert(
+              sincronizar
+                ? '✅ Aprovação sincronizada. A conta agora é Militante.'
+                : '✅ Membro aprovado. A conta agora é Militante.'
+            );
+          }
           await V.inscricoes();
           return;
         }
