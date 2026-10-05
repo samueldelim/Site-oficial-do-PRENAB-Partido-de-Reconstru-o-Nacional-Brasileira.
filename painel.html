@@ -244,16 +244,22 @@ window.addEventListener('unhandledrejection',e=>{
       const q=await sb.from('inscricoes').select('*').order('created_at',{ascending:false}).limit(500);
       if(q.error){pn.innerHTML=say('Erro ao carregar inscrições: '+q.error.message,'er');return}
       cache=q.data||[];
-      const rows=cache.map(i=>[
-        fmt(i.created_at),
-        esc(i.nome),
-        esc(i.email),
-        esc(i.whatsapp),
-        esc(i.cidade)+'/'+esc(i.uf),
-        '<select data-is="'+i.id+'">'+['novo','em_analise','aprovado','recusado'].map(s=>'<option value="'+s+'"'+(s===i.status?' selected':'')+'>'+s+'</option>').join('')+'</select>',
-        adm?'<button type="button" class="sm" data-di="'+i.id+'">Excluir</button>':''
-      ]);
-      pn.innerHTML='<p>'+cache.length+' pedido(s)'+(ld?' do seu estado ('+esc(p.uf_responsavel||'não definido')+')':'')+'. <button type="button" class="sm" data-csv="1">Baixar CSV</button></p>'+tbl(['Data','Nome','E-mail','WhatsApp','Cidade/UF','Status',''],rows);
+      const statusAtual=i=>{
+        if(i.status==='aprovado')return '<b class="ok">✅ Aprovado</b>';
+        if(i.status==='recusado')return '<b class="er">❌ Recusado</b>';
+        return '<select data-is="'+i.id+'">'+['novo','em_analise'].map(st=>'<option value="'+st+'"'+(st===i.status?' selected':'')+'>'+st+'</option>').join('')+'</select>';
+      };
+      const acoes=i=>{
+        if(!adm)return '';
+        const partes=[];
+        if(i.status==='aprovado')partes.push('<button type="button" class="sm" data-ai="'+i.id+'">Sincronizar militante</button>');
+        else partes.push('<button type="button" class="sm" data-ai="'+i.id+'">Aprovar membro</button>');
+        if(i.status!=='recusado' && i.status!=='aprovado')partes.push('<button type="button" class="sm" data-ri="'+i.id+'">Recusar</button>');
+        partes.push('<button type="button" class="sm" data-di="'+i.id+'">Excluir</button>');
+        return partes.join(' ');
+      };
+      const rows=cache.map(i=>[fmt(i.created_at),esc(i.nome),esc(i.email),esc(i.whatsapp),esc(i.cidade)+'/'+esc(i.uf),statusAtual(i),acoes(i)]);
+      pn.innerHTML='<p>'+cache.length+' pedido(s)'+(ld?' do seu estado ('+esc(p.uf_responsavel||'não definido')+')':'')+'. <button type="button" class="sm" data-csv="1">Baixar CSV</button></p>'+tbl(['Data','Nome','E-mail','WhatsApp','Cidade/UF','Status','Ações'],rows);
     };
 
     V.usuarios=async()=>{pn.innerHTML='<p>Carregando usuários…</p>';const q=await sb.from('profiles').select('id,email,nome,role,uf_responsavel,created_at').order('created_at',{ascending:false});if(q.error){pn.innerHTML=say('Erro ao carregar usuários: '+q.error.message,'er');return}pn.innerHTML='<p>Escolha o papel e clique em Salvar. Líder de núcleo precisa de UF (ex.: SP).</p>'+tbl(['Nome','E-mail','Papel','UF',''],(q.data||[]).map(u=>[esc(u.nome),esc(u.email),'<select data-ur="'+u.id+'">'+Object.keys(ROLES).map(r=>'<option value="'+r+'"'+(r===u.role?' selected':'')+'>'+r+'</option>').join('')+'</select>','<input data-uf="'+u.id+'" maxlength="2" value="'+esc(u.uf_responsavel||'')+'" style="width:60px;padding:6px">','<button type="button" class="sm" data-us="'+u.id+'">Salvar</button>']))};
@@ -263,17 +269,50 @@ window.addEventListener('unhandledrejection',e=>{
     pn.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
       try{
         if(d.ed){V.escrever(cache.find(m=>m.id===d.ed));return}
-        if(d.del){if(confirm('Excluir este rascunho?')){const r=await sb.from('materias').delete().eq('id',d.del);if(r.error)alert('Erro: '+r.error.message);V.minhas()}return}
-        if(d.ms){const a=d.ms.split(':');const r=await sb.from('materias').update({status:a[1]}).eq('id',a[0]);if(r.error)alert('Erro: '+r.error.message);V.revisao();return}
-        if(d.md){if(confirm('Excluir definitivamente?')){const r=await sb.from('materias').delete().eq('id',d.md);if(r.error)alert('Erro: '+r.error.message);V.revisao()}return}
-        if(d.ud){const r=await sb.from('atualizacoes').delete().eq('id',d.ud);if(r.error)alert('Erro: '+r.error.message);V.updates();return}
-        if(d.di){if(confirm('Excluir este pedido? Os dados da pessoa serão apagados.')){const r=await sb.from('inscricoes').delete().eq('id',d.di);if(r.error)alert('Erro: '+r.error.message);V.inscricoes()}return}
+        if(d.del){if(confirm('Excluir este rascunho?')){const r=await sb.from('materias').delete().eq('id',d.del);if(r.error)alert('Erro: '+r.error.message);await V.minhas()}return}
+        if(d.ms){const a=d.ms.split(':');const r=await sb.from('materias').update({status:a[1]}).eq('id',a[0]);if(r.error)alert('Erro: '+r.error.message);await V.revisao();return}
+        if(d.md){if(confirm('Excluir definitivamente?')){const r=await sb.from('materias').delete().eq('id',d.md);if(r.error)alert('Erro: '+r.error.message);await V.revisao()}return}
+        if(d.ud){const r=await sb.from('atualizacoes').delete().eq('id',d.ud);if(r.error)alert('Erro: '+r.error.message);await V.updates();return}
+        if(d.ai){
+          if(!adm)return;
+          const inscricao=cache.find(i=>String(i.id)===String(d.ai));
+          const sincronizar=inscricao?.status==='aprovado';
+          const pergunta=sincronizar
+            ? 'Sincronizar esta aprovação com a conta?\n\nIsso garante que o perfil correspondente tenha o papel Militante.'
+            : 'Aprovar esta inscrição como militante?\n\nIsso mudará o papel da conta correspondente para Militante e marcará a inscrição como aprovada.';
+          if(!confirm(pergunta))return;
+          b.disabled=true;b.textContent=sincronizar?'Sincronizando…':'Aprovando…';
+          const r=await sb.rpc('aprovar_inscricao',{p_inscricao_id:String(d.ai)});
+          if(r.error){b.disabled=false;b.textContent=sincronizar?'Sincronizar militante':'Aprovar membro';b.title=r.error.message;alert('Não foi possível '+(sincronizar?'sincronizar':'aprovar')+': '+r.error.message);return}
+          alert(sincronizar?'✅ Aprovação sincronizada. A conta agora é Militante.':'✅ Membro aprovado. A conta agora é Militante.');
+          await V.inscricoes();
+          return;
+        }
+        if(d.ri){
+          if(!adm)return;
+          if(!confirm('Recusar esta inscrição? A conta não receberá o papel de militante.'))return;
+          b.disabled=true;b.textContent='Recusando…';
+          const r=await sb.rpc('recusar_inscricao',{p_inscricao_id:String(d.ri)});
+          if(r.error){b.disabled=false;b.textContent='Recusar';b.title=r.error.message;alert('Não foi possível recusar: '+r.error.message);return}
+          alert('Inscrição recusada.');
+          await V.inscricoes();
+          return;
+        }
+        if(d.di){if(confirm('Excluir este pedido? Os dados da pessoa serão apagados.')){const r=await sb.from('inscricoes').delete().eq('id',d.di);if(r.error)alert('Erro: '+r.error.message);await V.inscricoes()}return}
         if(d.csv){csvDown(cache);return}
         if(d.us){const roleEl=pn.querySelector('[data-ur="'+d.us+'"]'),ufEl=pn.querySelector('[data-uf="'+d.us+'"]');const r=await sb.rpc('set_role',{alvo:d.us,novo:roleEl?.value,uf:ufEl?.value.toUpperCase()||null});b.textContent=r.error?'Erro':'Salvo ✓';if(r.error)b.title=r.error.message}
       }catch(err){alert(err.message||String(err))}
     });
 
-    pn.addEventListener('change',async e=>{const s=e.target.closest('[data-is]');if(!s)return;const r=await sb.from('inscricoes').update({status:s.value}).eq('id',s.dataset.is);s.style.outline=r.error?'2px solid #b00020':'2px solid #11a00f';if(r.error)s.title=r.error.message});
+    pn.addEventListener('change',async e=>{
+      const s=e.target.closest('[data-is]');
+      if(!s)return;
+      const r=await sb.from('inscricoes').update({status:s.value}).eq('id',s.dataset.is).select('id,status').maybeSingle();
+      s.style.outline=r.error?'2px solid #b00020':'2px solid #11a00f';
+      if(r.error){s.title=r.error.message;alert('Erro ao atualizar o status: '+r.error.message);return}
+      await V.inscricoes();
+    });
+
 
     const show=async k=>{document.querySelectorAll('#tb button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));try{await V[k]()}catch(err){pn.innerHTML=say('Erro ao abrir esta seção: '+(err.message||String(err)),'er')}};
     document.querySelector('#tb').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.k)};
