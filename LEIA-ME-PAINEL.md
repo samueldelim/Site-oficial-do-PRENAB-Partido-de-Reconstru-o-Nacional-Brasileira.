@@ -19,6 +19,7 @@ O GitHub Pages só entrega arquivos. Qualquer login "feito só no JavaScript" po
 ## Passo a passo
 1. Crie conta em supabase.com e um projeto novo (região **South America (São Paulo)**). Guarde a senha do banco em lugar seguro.
 2. No projeto: **SQL Editor → New query**, cole todo o `supabase.sql` e clique em **Run**.
+2b. **Atualização 2:** em uma nova query, cole todo o `supabase-2.sql` e clique em **Run**. Ela traz: aprovar pré-inscrição = a conta vira militante, foto de perfil, suspender usuários, auditoria e os números da visão geral. Se você já rodou o `supabase.sql` antes, rode só este arquivo.
 3. **Project Settings → API**: copie a *Project URL* e a *Publishable key* (`sb_publishable_...`) e cole em `config.js`. Se seu projeto só mostra a chave `anon` antiga, ela também funciona por enquanto, mas a Supabase vai aposentá-la até o fim de 2026.
 4. **Authentication → URL Configuration**: em *Site URL* ponha o endereço do site e adicione o mesmo endereço em *Redirect URLs*. Em **Authentication → Providers → Email**, mantenha "Confirm email" ligado.
 5. Envie os arquivos para o GitHub (inclusive `config.js` preenchido).
@@ -26,6 +27,12 @@ O GitHub Pages só entrega arquivos. Qualquer login "feito só no JavaScript" po
 7. No **SQL Editor**, rode uma vez (com o seu e-mail): `update public.profiles set role = 'admin' where email = 'SEU-EMAIL@exemplo.com';`
 8. Entre de novo e abra `painel.html`. Na aba **Usuários** você promove as outras pessoas. Quem cria conta entra como *visitante*.
 9. **Teste de segurança**: rode os comandos comentados no fim do `supabase.sql`. Todos precisam dar erro de permissão. Teste também com outra conta de militante: ela não pode ver Inscrições nem Usuários.
+
+## Se o painel não abrir
+- **Mensagem "Seu perfil ainda não existe no banco":** a conta foi criada antes de você rodar o `supabase.sql`. No SQL Editor rode o bloco "CONTA CRIADA ANTES..." do fim do arquivo e depois o `update ... role = 'admin'`.
+- **Mensagem "Não foi possível carregar" / "tempo esgotado":** clique em "Limpar sessão e entrar de novo". Se repetir, abra o site numa janela anônima e veja o console (F12) para o erro.
+- **"Recurso ainda não ativado":** o `config.js` está com os textos "COLE_AQUI" ou o script do Supabase não carregou (internet/bloqueador).
+- **Login diz e-mail ou senha incorretos:** confirme o e-mail pelo link que o Supabase enviou (olhe o spam).
 
 ## Cuidados
 - **LGPD:** nome, contato e interesse num projeto político são dados pessoais, e opinião política é dado **sensível** (art. 5º, II). A lei exige consentimento **específico e destacado** (art. 11, I), que o formulário já traz. Preencha o contato do responsável na `privacidade.html` e revise o texto com advogado. Colete só o necessário e apague quando a pessoa pedir.
@@ -37,3 +44,9 @@ O GitHub Pages só entrega arquivos. Qualquer login "feito só no JavaScript" po
 - **Anti-spam:** o formulário tem um campo-armadilha e limites de tamanho. Se houver ataque, adicione um CAPTCHA (Cloudflare Turnstile é gratuito).
 - **Google:** as matérias carregam por JavaScript, então o Google pode demorar a indexá-las. As páginas principais continuam em HTML puro.
 - Os scripts do Supabase vêm do CDN jsDelivr (versão 2). Se quiser mais controle, baixe o arquivo e hospede junto.
+
+## Se algo não funcionar
+- **Painel mostra erro em vez de carregar:** a mensagem diz o motivo. Se citar "function does not exist" ou "column", falta rodar o `supabase-2.sql`.
+- **Aprovei uma pré-inscrição e a pessoa não virou militante:** a conta precisa existir **com o mesmo e-mail** e ter o e-mail **confirmado**. Se ainda não existe, ela vira militante sozinha ao criar a conta e confirmar. O aviso na tela diz qual caso aconteceu.
+- **Foto não envia:** confirme que o `supabase-2.sql` rodou (ele cria o espaço de fotos `avatars`).
+- **Conta suspensa:** o administrador pode reativar em Usuários. A pessoa suspensa volta a ser tratada como visitante.

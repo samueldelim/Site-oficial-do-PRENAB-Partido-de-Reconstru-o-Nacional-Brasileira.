@@ -114,6 +114,26 @@ h1.pt{font-size:clamp(34px,6vw,60px);line-height:1;margin:8px 0 18px;color:var(-
 .ok{color:#0a7a08;font-weight:800}.er{color:#b00020;font-weight:800}.mut{color:var(--mut)}
 button.sm{padding:6px 10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:4px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .opt button.btn{padding:12px 20px;border:0;color:#fff}
+
+.pnl{display:grid;gap:24px;grid-template-columns:230px 1fr;align-items:start}
+.sd{display:flex;flex-direction:column;gap:4px;position:sticky;top:150px}
+.sd .gl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:12px 0 2px;font-weight:800}
+.sd button{text-align:left;padding:10px 12px;border:0;background:transparent;color:var(--tx);font:inherit;font-weight:700;cursor:pointer;border-left:4px solid transparent;white-space:nowrap}
+.sd button.on{background:var(--bg2);border-left-color:var(--green);color:var(--hl)}
+@media(max-width:820px){.pnl{grid-template-columns:1fr}.sd{flex-direction:row;overflow-x:auto;position:static;padding-bottom:6px}.sd .gl{display:none}}
+.pc{min-width:0}.vt{font-size:clamp(24px,4vw,34px);color:var(--hl);margin:0 0 16px;font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-weight:400}
+.ph2{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--bd);border-top:5px solid var(--green);padding:16px;margin-bottom:22px}
+.avt{border-radius:50%;object-fit:cover;background:var(--blue);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-top:5px solid var(--blue);padding:16px;text-align:left;cursor:pointer;color:var(--tx);font:inherit}
+.kpi b{display:block;font:400 40px/1 Anton,Impact,sans-serif;color:var(--hl)}.kpi span{font-size:13px;color:var(--mut)}
+.bd{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:800;background:var(--bg2);color:var(--hl);border:1px solid var(--bd)}
+.bd.aprovado,.bd.publicado{background:#d9f5d8;color:#0a5a09;border-color:#9ad898}
+.bd.recusado,.bd.arquivado{background:#fde0e0;color:#8a1020;border-color:#f0a8a8}
+.bd.novo,.bd.revisao,.bd.em_analise{background:#fff3c4;color:#5a4500;border-color:#e6cf70}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.tools input,.tools select,.tb select{padding:9px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:4px;font:inherit}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--navy);color:#fff;padding:14px 20px;border-radius:6px;box-shadow:0 8px 30px #0006;z-index:99;max-width:92vw;font-weight:600}
+.toast.er{background:#8a1020;color:#fff}.toast.ok{background:#0a6a09;color:#fff}
 </style>
 <script>try{var c=JSON.parse(localStorage.getItem('prenab-cfg')||'{}'),e=document.documentElement;if(c.theme&&c.theme!=='auto')e.setAttribute('data-theme',c.theme);if(c.fs&&c.fs!=='0')e.setAttribute('data-fs',c.fs);if(c.rm)e.setAttribute('data-rm','1')}catch(x){}</script>
 <script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"PRENAB","alternateName":["Partido de Reconstrução Nacional Brasileira","PRENAB Partido de Reconstrução Nacional Brasileira"],"url":"https://samueldelim.github.io/Site-oficial-do-PRENAB-Partido-de-Reconstru-o-Nacional-Brasileira./","inLanguage":"pt-BR"},{"@context":"https://schema.org","@type":"Organization","name":"PRENAB — Partido de Reconstrução Nacional Brasileira","alternateName":"PRENAB","url":"https://samueldelim.github.io/Site-oficial-do-PRENAB-Partido-de-Reconstru-o-Nacional-Brasileira./","logo":"https://samueldelim.github.io/Site-oficial-do-PRENAB-Partido-de-Reconstru-o-Nacional-Brasileira./logo.png","foundingDate":"2026-08-21","founder":{"@type":"Person","name":"Samuel Henrique Ferreira de Lima"},"slogan":"Ordem, Nação e Progresso","description":"Projeto político brasileiro em fase de constituição, de Terceira Posição Política.","sameAs":["https://prenabpartido.blogspot.com","https://www.tiktok.com/@sam_sentinela","https://linktr.ee/sam_Sentinela"]}]</script>

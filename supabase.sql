@@ -179,6 +179,11 @@ create policy "atualizacao: equipe apaga" on public.atualizacoes for delete to a
 --
 --   update public.profiles set role = 'admin' where email = 'SEU-EMAIL@exemplo.com';
 --
+-- CONTA CRIADA ANTES DE RODAR ESTE SQL? Crie os perfis que faltam (rode uma vez):
+--   insert into public.profiles (id, email, nome)
+--   select id, email, left(coalesce(raw_user_meta_data->>'nome',''),120) from auth.users
+--   on conflict (id) do nothing;
+--
 -- TESTE DE SEGURANÇA (opcional): cada comando abaixo deve dar erro de permissão.
 --   begin; set local role anon; select * from public.inscricoes; rollback;
 --   begin; set local role anon; select * from public.profiles; rollback;
