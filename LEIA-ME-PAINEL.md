@@ -20,6 +20,7 @@ O GitHub Pages só entrega arquivos. Qualquer login "feito só no JavaScript" po
 1. Crie conta em supabase.com e um projeto novo (região **South America (São Paulo)**). Guarde a senha do banco em lugar seguro.
 2. No projeto: **SQL Editor → New query**, cole todo o `supabase.sql` e clique em **Run**.
 2b. **Atualização 2:** em uma nova query, cole todo o `supabase-2.sql` e clique em **Run**. Ela traz: aprovar pré-inscrição = a conta vira militante, foto de perfil, suspender usuários, auditoria e os números da visão geral. Se você já rodou o `supabase.sql` antes, rode só este arquivo.
+2c. **Atualização 3:** em outra nova query, cole todo o `supabase-3.sql` e clique em **Run**. Ela traz: lista de **Membros aprovados**, notificações (sino 🔔), avisos gerais e fotos nas matérias.
 3. **Project Settings → API**: copie a *Project URL* e a *Publishable key* (`sb_publishable_...`) e cole em `config.js`. Se seu projeto só mostra a chave `anon` antiga, ela também funciona por enquanto, mas a Supabase vai aposentá-la até o fim de 2026.
 4. **Authentication → URL Configuration**: em *Site URL* ponha o endereço do site e adicione o mesmo endereço em *Redirect URLs*. Em **Authentication → Providers → Email**, mantenha "Confirm email" ligado.
 5. Envie os arquivos para o GitHub (inclusive `config.js` preenchido).
@@ -47,6 +48,10 @@ O GitHub Pages só entrega arquivos. Qualquer login "feito só no JavaScript" po
 
 ## Se algo não funcionar
 - **Painel mostra erro em vez de carregar:** a mensagem diz o motivo. Se citar "function does not exist" ou "column", falta rodar o `supabase-2.sql`.
+- **Aprovei uma pré-inscrição e a pessoa "não aparece":** pré-inscrição não é conta. Quem foi aprovado aparece em **Pessoas → Membros aprovados**, com a situação da conta (sem conta, e-mail não confirmado ou conta ativa). Só entra em **Usuários** quando criar a conta. Use "Copiar convite" ou "WhatsApp" para chamar a pessoa.
 - **Aprovei uma pré-inscrição e a pessoa não virou militante:** a conta precisa existir **com o mesmo e-mail** e ter o e-mail **confirmado**. Se ainda não existe, ela vira militante sozinha ao criar a conta e confirmar. O aviso na tela diz qual caso aconteceu.
 - **Foto não envia:** confirme que o `supabase-2.sql` rodou (ele cria o espaço de fotos `avatars`).
 - **Conta suspensa:** o administrador pode reativar em Usuários. A pessoa suspensa volta a ser tratada como visitante.
+- **Notificações não chegam ao vivo:** confirme que o `supabase-3.sql` rodou sem erro. Em Database → Replication, a tabela `notificacoes` deve estar ativa para o Realtime.
+- **Foto da matéria não envia:** o `supabase-3.sql` cria o espaço `materias` (máx. 1,5 MB por imagem; o site reduz a imagem antes de enviar).
+- **Faixa de aviso no site público não aparece:** marque "Mostrar também como faixa no site público" ao criar o aviso e confira se o `config.js` está preenchido.
